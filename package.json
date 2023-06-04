@@ -15,7 +15,7 @@
     "publish-package:test:pack": "npm run transpileToDist && npm pack",
     "publish-package:test:unpack-archive": "tar zxvf",
     "publish-package:test:clean": "rm -rf ./package && rm -rf illia-web-dev-jest-tags*",
-    "publish-package:publish": "npm run transpileToDist && npm publish --access public"
+    "publish-package:publish": "npm run husky:precommit && npm run transpileToDist && npm publish --access public"
   },
   "repository": {
     "type": "git",

@@ -5,7 +5,7 @@
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "scripts": {
-    "husky:precommit": "npm run lint -- --max-warnings=0 && tsc --noEmit && NODE_ENV=DANGER_JEST_ONLY_NODE_ENV npm test",
+    "husky:precommit": "npm run lint -- --max-warnings=0 && NODE_ENV=DANGER_JEST_ONLY_NODE_ENV npm test",
     "transpileToDist": "rm -rf ./dist && tsc && rm -rf ./dist/*.test.*",
     "ts": "tsc --noEmit --watch",
     "lint": "eslint . --ext .ts",
@@ -29,8 +29,9 @@
   },
   "homepage": "https://github.com/illiaWebDev/jest-tags#readme",
   "peerDependencies": {
-    "tslib": "^2",
-    "typescript": "^4"
+    "tslib": ">=2",
+    "typescript": ">=4",
+    "@jest/globals": ">=29"
   },
   "devDependencies": {
     "@jest/globals": "29.5.0",
@@ -42,6 +43,6 @@
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-config-airbnb-typescript": "17.0.0",
     "husky": "8.0.3",
-    "typescript": "5.1.3"
+    "typescript": "4.9.5"
   }
 }

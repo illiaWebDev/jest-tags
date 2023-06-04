@@ -3,8 +3,8 @@ import { describe, test, expect } from '@jest/globals';
 import { matchesJestTags, initJestTags, jestTagsEnvVarName, defaultInitJestTagsRtrn } from './tags';
 
 
-describe( 'Jest tags filtering', () => {
-  describe( 'matchesTags', () => {
+describe( 'Jest tags', () => {
+  describe( matchesJestTags.name, () => {
     test( 'returns true for empty env tags obj', () => {
       expect( matchesJestTags( {}, [] ) ).toBe( true );
       expect( matchesJestTags( {}, [ 'a' ] ) ).toBe( true );
@@ -35,7 +35,7 @@ describe( 'Jest tags filtering', () => {
     } );
   } );
 
-  describe( 'init', () => {
+  describe( initJestTags.name, () => {
     test( 'returns default describe and test if env has no tags for jest', () => {
       const res = initJestTags( {} );
 
@@ -45,6 +45,7 @@ describe( 'Jest tags filtering', () => {
 
     test( 'returns default describe and test if tags in env have incorrect shape', () => {
       const incorrectVals = [
+        '',
         '{}',
         'asdasdasd',
         'test;2',
@@ -58,18 +59,18 @@ describe( 'Jest tags filtering', () => {
       } );
     } );
 
-    test( 'returns default describe and test if tags for jest in env are empty', () => {
-      const k = initJestTags( { [ jestTagsEnvVarName ]: '' } );
-
-      expect( k.describeWithTags ).toBe( defaultInitJestTagsRtrn.describeWithTags );
-      expect( k.testWithTags ).toBe( defaultInitJestTagsRtrn.testWithTags );
-    } );
-
     test( 'returns default describe and test if tags in env have no valid pairs', () => {
       const k = initJestTags( { [ jestTagsEnvVarName ]: 'test:true;test2:5' } );
 
       expect( k.describeWithTags ).toBe( defaultInitJestTagsRtrn.describeWithTags );
       expect( k.testWithTags ).toBe( defaultInitJestTagsRtrn.testWithTags );
+    } );
+
+    test( 'returns new describe and test if tags in env have at least one valid pair', () => {
+      const k = initJestTags( { [ jestTagsEnvVarName ]: 'test:1;test2:{};test3:677' } );
+
+      expect( k.describeWithTags ).not.toBe( defaultInitJestTagsRtrn.describeWithTags );
+      expect( k.testWithTags ).not.toBe( defaultInitJestTagsRtrn.testWithTags );
     } );
 
     test( 'returns new describe and test if tags for jest have correct shape', () => {

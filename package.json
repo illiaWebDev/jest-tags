@@ -5,8 +5,8 @@
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "scripts": {
-    "husky:precommit": "npm run lint -- --max-warnings=0 && tsc --noEmit",
-    "transpileToDist": "rm -rf ./dist && tsc",
+    "husky:precommit": "npm run lint -- --max-warnings=0 && tsc --noEmit && NODE_ENV=DANGER_JEST_ONLY_NODE_ENV npm test",
+    "transpileToDist": "rm -rf ./dist && tsc && rm -rf ./dist/*.test.*",
     "ts": "tsc --noEmit --watch",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",

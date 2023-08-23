@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { describe, test, expect } from '@jest/globals';
-import { matchesJestTags, initJestTags, jestTagsEnvVarName, defaultInitJestTagsRtrn } from './tags';
+import { matchesJestTags, initJestTags, jestTagsEnvVarName, defaultInitJestTagsRtrn } from './main';
 
 
 describe( 'Jest tags', () => {

@@ -1,11 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { describe, test, expect } from '@jest/globals';
-import {
-  // aggregateJestTags,
-  // deriveGetJestTags,
-  getJestTagsTreeNodeByIndx,
-  JestTagsTreeNode,
-} from './deriveGetJestTags';
+import { getJestTagsTreeNodeByIndx } from './main';
+import type { JestTagsTreeNode } from '../types';
 
 
 describe( 'deriveGetJestTags:all', () => {
@@ -20,11 +16,36 @@ describe( 'deriveGetJestTags:all', () => {
 
     describe( 'null return value', () => {
       test( 'returns null if indx string has incorrect format', () => {
-        expect( getJestTagsTreeNodeByIndx( { tags: [] }, 'a' ) ).toBe( null );
-        expect( getJestTagsTreeNodeByIndx( { tags: [] }, '1.2w' ) ).toBe( null );
-        expect( getJestTagsTreeNodeByIndx( { tags: [] }, 'atwq' ) ).toBe( null );
-        expect( getJestTagsTreeNodeByIndx( { tags: [] }, 'test' ) ).toBe( null );
-        expect( getJestTagsTreeNodeByIndx( { tags: [] }, '6_0_t' ) ).toBe( null );
+        const incorrectIndxStrings = [
+          ' ',
+          '      ',
+          'a',
+          '1.2w',
+          'atwq',
+          'test',
+          '6_0_t',
+          '.1.2',
+          ' 0',
+          ' 2.0',
+        ];
+
+        const tree: JestTagsTreeNode = {
+          tags: [],
+          children: [
+            { tags: [] },
+            { tags: [] },
+            {
+              tags: [],
+              children: [
+                { tags: [] },
+              ],
+            },
+          ],
+        };
+
+        incorrectIndxStrings.forEach( str => (
+          expect( getJestTagsTreeNodeByIndx( tree, str ) ).toBe( null )
+        ) );
       } );
 
       test( 'returns null if unable to find indx (small tree)', () => {
@@ -63,36 +84,22 @@ describe( 'deriveGetJestTags:all', () => {
                     { tags: [] },
                     {
                       tags: [],
-                      children: [],
+                      children: [
+                        { tags: [] },
+                      ],
                     },
+                    { tags: [] },
+                    { tags: [], children: [ { tags: [] } ] },
                     { tags: [] },
                   ],
                 },
                 { tags: [] },
               ],
             },
-            '0.1',
+            '0.3.1.5.2',
           ),
         ).toBe( null );
       } );
     } );
-
-    // describe( 'returns null if node cannot be located', () => {
-    //   test( 'small', () => {
-    //     const result = getJestTagsTreeNodeByIndx( { tags: [] }, '' );
-    //   } );
-    // } );
-    // test( 'getJestTagsTreeNodeByIndx 1', () => {
-
-    // } );
   } );
 } );
-
-
-// {
-//   tags: ['1'],
-//   children: [
-//     {tags: ['1.1']},
-//     {tags: ['1.2']},
-//   ],
-// }

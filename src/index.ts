@@ -1,2 +1,2 @@
-export * from './tags';
-export * from './deriveGetJestTags';
+export * from './tags/main';
+export * from './deriveGetJestTags/main';

@@ -1,4 +1,4 @@
-import type { JestTagsTreeNode } from '../types';
+import type { JestTagsTreeNodeFull } from '../types';
 
 
 const numberOnlyRegex = /^\d+$/;
@@ -8,7 +8,7 @@ const numberOnlyRegex = /^\d+$/;
  * corresponding value. \
  * **IMPORTANT**: '' means "end of search, return node":
  */
-export function getJestTagsTreeNodeByIndx( node: JestTagsTreeNode, indx: string ): typeof node | null {
+export function getJestTagsTreeNodeByIndx( node: JestTagsTreeNodeFull, indx: string ): typeof node | null {
   if ( indx === '' ) return node;
 
   const stringNumsArr = indx.split( '.' );

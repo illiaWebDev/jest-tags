@@ -37,7 +37,7 @@ export const matchesJestTags = ( envTags: JestTags, tags: string[] ): boolean =>
 export type InitJestTagsRtrn = {
   describeWithTags: ( tags: string[], blockNameLike: DescribeParams[0], fn: DescribeParams[1] ) => DescribeReturnType;
   testWithTags: (
-    ( tags: string[], blockNameLike: TestParams[0], fn: TestParams[1], timeout: TestParams[2] ) => TestReturnType
+    ( tags: string[], blockNameLike: TestParams[0], fn: TestParams[1], timeout?: TestParams[2] ) => TestReturnType
   );
 };
 

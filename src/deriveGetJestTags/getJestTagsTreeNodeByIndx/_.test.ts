@@ -4,17 +4,10 @@ import type { JestTagsTreeNodeFull } from '../types';
 
 
 describe( 'getJestTagsTreeNodeByIndx', () => {
-  describe( 'empty string index', () => {
-    test( 'returns argument node if indx is an empty string', () => {
-      const node: JestTagsTreeNodeFull = { tags: [], fullTags: [] };
-
-      expect( getJestTagsTreeNodeByIndx( node, '' ) ).toBe( node );
-    } );
-  } );
-
   describe( 'null return value', () => {
     test( 'returns null if indx string has incorrect format', () => {
       const incorrectIndxStrings = [
+        '',
         ' ',
         '      ',
         'a',
@@ -69,7 +62,7 @@ describe( 'getJestTagsTreeNodeByIndx', () => {
               { tags: [], fullTags: [] },
             ],
           },
-          '0.1',
+          '0.2',
         ),
       ).toBe( null );
     } );
@@ -101,13 +94,19 @@ describe( 'getJestTagsTreeNodeByIndx', () => {
               { tags: [], fullTags: [] },
             ],
           },
-          '0.3.1.5.2',
+          '0.0.3.5.2',
         ),
       ).toBe( null );
     } );
   } );
 
   describe( 'correct return value', () => {
+    test( 'correctly returns root node (small tree)', () => {
+      const tree: JestTagsTreeNodeFull = { tags: [], fullTags: [] };
+
+      expect( getJestTagsTreeNodeByIndx( tree, '0' ) ).toBe( tree );
+    } );
+
     test( 'correctly returns (small tree)', () => {
       const tree: JestTagsTreeNodeFull = {
         tags: [],
@@ -117,7 +116,7 @@ describe( 'getJestTagsTreeNodeByIndx', () => {
         ],
       };
 
-      expect( getJestTagsTreeNodeByIndx( tree, '0' ) ).toBe( ( tree.children || [] )[ 0 ] );
+      expect( getJestTagsTreeNodeByIndx( tree, '0.0' ) ).toBe( ( tree.children || [] )[ 0 ] );
     } );
 
     test( 'correctly returns (medium tree)', () => {
@@ -139,7 +138,7 @@ describe( 'getJestTagsTreeNodeByIndx', () => {
 
       const node1 = ( tree.children || [] )[ 1 ];
       const node2 = ( node1 === undefined || node1.children === undefined ? [] : node1.children )[ 0 ];
-      expect( getJestTagsTreeNodeByIndx( tree, '1.0' ) ).toBe( node2 );
+      expect( getJestTagsTreeNodeByIndx( tree, '0.1.0' ) ).toBe( node2 );
     } );
 
     test( 'correctly returns (big tree)', () => {
@@ -181,7 +180,7 @@ describe( 'getJestTagsTreeNodeByIndx', () => {
       const node3 = ( node2 === undefined || node2.children === undefined ? [] : node2.children )[ indices[ 2 ] ];
       const node4 = ( node3 === undefined || node3.children === undefined ? [] : node3.children )[ indices[ 3 ] ];
 
-      expect( getJestTagsTreeNodeByIndx( tree, indices.join( '.' ) ) ).toBe( node4 );
+      expect( getJestTagsTreeNodeByIndx( tree, `0.${ indices.join( '.' ) }` ) ).toBe( node4 );
     } );
   } );
 } );

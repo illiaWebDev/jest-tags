@@ -1,6 +1,7 @@
 .husky
 node_modules
 src
+_DISCARDED_omegaDescribe.test.txt
 .eslintignore
 .eslintrc.js
 .gitignore

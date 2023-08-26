@@ -1,22 +1,23 @@
 {
   "name": "@illia-web-dev/jest-tags",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "scripts": {
     "husky:prepush": "npm run lint -- --max-warnings=0 && npm test",
-    "transpileToDist": "rm -rf ./dist && tsc && rm -rf ./dist/*.test.*",
+    "transpileToDist": "rm -rf ./dist && tsc && find ./dist -name '*.test.*' -delete && find ./dist -name '*aggregateTests*' -delete",
     "ts": "tsc --noEmit --watch",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "test": "jest -c=./jest.config.js --runInBand",
     "test:inspect-brk": " node --inspect ./node_modules/.bin/jest -c=./jest.config.js --runInBand",
     "prepare": "husky install",
-    "publish-package:test:pack": "npm run transpileToDist && npm pack",
+    "publish-package:test:pack:check-and-transpile": "npm run husky:prepush && npm run transpileToDist",
+    "publish-package:test:pack": "npm run publish-package:test:pack:check-and-transpile && npm pack",
     "publish-package:test:unpack-archive": "tar zxvf",
     "publish-package:test:clean": "rm -rf ./package && rm -rf illia-web-dev-jest-tags*",
-    "publish-package:publish": "npm run husky:prepush && npm run transpileToDist && npm publish --access public"
+    "publish-package:publish": "npm run publish-package:test:pack:check-and-transpile && npm publish --access public"
   },
   "repository": {
     "type": "git",

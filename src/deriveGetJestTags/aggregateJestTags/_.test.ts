@@ -1,6 +1,7 @@
 import { test, describe, expect } from '@jest/globals';
 import { aggregateJestTags } from './main';
 import type { JestTagsTreeNode } from '../types';
+import { getJestTagsTreeNodeByIndx } from '../getJestTagsTreeNodeByIndx/main';
 
 
 describe( 'aggregateJestTags', () => {
@@ -11,15 +12,15 @@ describe( 'aggregateJestTags', () => {
     const tag02 = '0.2';
 
 
-    const treeChild0: JestTagsTreeNode = { tags: [ tag00 ] };
-    const treeChild1: JestTagsTreeNode = { tags: [ tag01 ] };
-    const treeChild2: JestTagsTreeNode = { tags: [ tag02 ] };
+    // const treeChild0: JestTagsTreeNode = { tags: [ tag00 ] };
+    // const treeChild1: JestTagsTreeNode = { tags: [ tag01 ] };
+    // const treeChild2: JestTagsTreeNode = { tags: [ tag02 ] };
     const tree: JestTagsTreeNode = {
       tags: [ tag0 ],
       children: [
-        treeChild0,
-        treeChild1,
-        treeChild2,
+        { tags: [ tag00 ] },
+        { tags: [ tag01 ] },
+        { tags: [ tag02 ] },
       ],
     };
 
@@ -27,132 +28,364 @@ describe( 'aggregateJestTags', () => {
 
     // ===================================================================================
 
-    const { tags: rootTags, fullTags: fullRootTags } = aggregated;
-    expect( rootTags ).toBe( tree.tags );
-    expect( fullRootTags.slice().sort() ).toEqual( [ tag0, tag00, tag01, tag02 ].sort() );
+    {
+      const { tags, fullTags } = aggregated;
+      expect( tags ).toBe( tree.tags );
+      expect( fullTags.slice().sort() ).toEqual( [ tag0, tag00, tag01, tag02 ].sort() );
+    }
 
 
     // ===================================================================================
 
-    const aggregatedChild0 = ( aggregated.children || [] )[ 0 ];
-    expect( aggregatedChild0 ).not.toBeUndefined();
-    const typedAggregatedChild0 = aggregatedChild0 as NonNullable< typeof aggregatedChild0 >;
+    {
+      const child = ( aggregated.children || [] )[ 0 ];
+      expect( child ).not.toBeUndefined();
+      const typed = child as NonNullable< typeof child >;
 
-    expect( typedAggregatedChild0.fullTags ).toBe( treeChild0.tags );
-    expect( typedAggregatedChild0.tags ).toBe( treeChild0.tags );
-
-    // ===================================================================================
-
-    const aggregatedChild1 = ( aggregated.children || [] )[ 1 ];
-    expect( aggregatedChild1 ).not.toBeUndefined();
-    const typedAggregatedChild1 = aggregatedChild1 as NonNullable< typeof aggregatedChild1 >;
-
-    expect( typedAggregatedChild1.fullTags ).toBe( treeChild1.tags );
-    expect( typedAggregatedChild1.tags ).toBe( treeChild1.tags );
+      expect( typed.tags ).toStrictEqual( [ tag00 ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual( [ tag0, tag00 ].slice().sort() );
+    }
 
     // ===================================================================================
 
-    const aggregatedChild2 = ( aggregated.children || [] )[ 2 ];
-    expect( aggregatedChild2 ).not.toBeUndefined();
-    const typedAggregatedChild2 = aggregatedChild2 as NonNullable< typeof aggregatedChild2 >;
+    {
+      const child = ( aggregated.children || [] )[ 1 ];
+      expect( child ).not.toBeUndefined();
+      const typed = child as NonNullable< typeof child >;
 
-    expect( typedAggregatedChild2.fullTags ).toBe( treeChild2.tags );
-    expect( typedAggregatedChild2.tags ).toBe( treeChild2.tags );
+      expect( typed.tags ).toStrictEqual( [ tag01 ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual( [ tag0, tag01 ].slice().sort() );
+    }
+
+    // ===================================================================================
+
+    {
+      const child = ( aggregated.children || [] )[ 2 ];
+      expect( child ).not.toBeUndefined();
+      const typed = child as NonNullable< typeof child >;
+
+      expect( typed.tags ).toStrictEqual( [ tag02 ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual( [ tag0, tag02 ].slice().sort() );
+    }
   } );
 
-  test( 'works for medium tree', () => {
+  test( 'works for big tree', () => {
     const tag0 = '0';
     const tag00 = '0.0';
     const tag000 = '0.0.0';
     const tag001 = '0.0.1';
     const tag002 = '0.0.2';
+    const tag0020 = '0.0.2.0';
+
     const tag01 = '0.1';
+
     const tag02 = '0.2';
     const tag020 = '0.2.0';
+    const tag0200 = '0.2.0.0';
+    const tag02000 = '0.2.0.0.0';
+    const tag0201 = '0.2.0.1';
     const tag021 = '0.2.1';
     const tag022 = '0.2.2';
 
 
-    const treeChild000: JestTagsTreeNode = { tags: [ tag000 ] };
-    const treeChild001: JestTagsTreeNode = { tags: [ tag001 ] };
-    const treeChild002: JestTagsTreeNode = { tags: [ tag002 ] };
-    const treeChild00: JestTagsTreeNode = {
-      tags: [ tag00 ],
-      children: [
-        treeChild000,
-        treeChild001,
-        treeChild002,
-      ],
-    };
-
-    const treeChild01: JestTagsTreeNode = { tags: [ tag01 ] };
-
-
-    const treeChild020: JestTagsTreeNode = { tags: [ tag020 ] };
-    const treeChild021: JestTagsTreeNode = { tags: [ tag021 ] };
-    const treeChild022: JestTagsTreeNode = { tags: [ tag022 ] };
-    const treeChild02: JestTagsTreeNode = {
-      tags: [ tag02 ],
-      children: [
-        treeChild020,
-        treeChild021,
-        treeChild022,
-      ],
-    };
-
     const tree: JestTagsTreeNode = {
       tags: [ tag0 ],
       children: [
-        treeChild00,
-        treeChild01,
-        treeChild02,
+        {
+          tags: [ tag00 ],
+          children: [
+            { tags: [ tag000 ] },
+            { tags: [ tag001 ] },
+            {
+              tags: [ tag002 ],
+              children: [ { tags: [ tag0020 ] } ],
+            },
+          ],
+        },
+        {
+          tags: [ tag01 ],
+        },
+        {
+          tags: [ tag02 ],
+          children: [
+            {
+              tags: [ tag020 ],
+              children: [
+                {
+                  tags: [ tag0200 ],
+                  children: [
+                    { tags: [ tag02000 ] },
+                  ],
+                },
+                { tags: [ tag0201 ] },
+              ],
+            },
+            { tags: [ tag021 ] },
+            { tags: [ tag022 ] },
+          ],
+        },
       ],
     };
 
     const aggregated = aggregateJestTags( tree );
 
-    const { tags: rootTags, fullTags: fullRootTags } = aggregated;
-    expect( rootTags ).toBe( tree.tags );
-    expect( fullRootTags.slice().sort() ).toEqual(
-      [
-        tag0,
-        tag00,
-        tag000,
-        tag001,
-        tag002,
-        tag01,
-        tag02,
-        tag020,
-        tag021,
-        tag022,
-      ].sort(),
-    );
+    {
+      const path = tag0;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
 
-    // ===================================================================================
+      const typed = node as NonNullable< typeof node >;
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          path,
+          tag00,
+          tag000,
+          tag001,
+          tag002,
+          tag0020,
+          tag01,
+          tag02,
+          tag020,
+          tag0200,
+          tag02000,
+          tag0201,
+          tag021,
+          tag022,
+        ].slice().sort(),
+      );
+    }
 
-    const aggregatedChild00 = ( aggregated.children || [] )[ 0 ];
-    expect( aggregatedChild00 ).not.toBeUndefined();
-    const typedAggregatedChild00 = aggregatedChild00 as NonNullable< typeof aggregatedChild00 >;
+    {
+      const path = tag00;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
 
-    expect( typedAggregatedChild00.fullTags ).toEqual( [ tag00, tag000, tag001, tag002 ].sort() );
-    expect( typedAggregatedChild00.tags ).toBe( treeChild00.tags );
+      const typed = node as NonNullable< typeof node >;
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          path,
+          tag000,
+          tag001,
+          tag002,
+          tag0020,
+        ].slice().sort(),
+      );
+    }
 
-    // ===================================================================================
+    {
+      const path = tag000;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
 
-    const aggregatedChild01 = ( aggregated.children || [] )[ 1 ];
-    expect( aggregatedChild01 ).not.toBeUndefined();
-    const typedAggregatedChild01 = aggregatedChild01 as NonNullable< typeof aggregatedChild01 >;
+      const typed = node as NonNullable< typeof node >;
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag00,
+          path,
+        ].slice().sort(),
+      );
+    }
 
-    expect( typedAggregatedChild01.fullTags ).toEqual( [ tag01 ].sort() );
-    expect( typedAggregatedChild01.tags ).toBe( treeChild01.tags );
+    {
+      const path = tag001;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
 
-    // ===================================================================================
+      const typed = node as NonNullable< typeof node >;
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag00,
+          path,
+        ].slice().sort(),
+      );
+    }
 
-    const aggregatedChild02 = ( aggregated.children || [] )[ 2 ];
-    expect( aggregatedChild02 ).not.toBeUndefined();
-    const typedAggregatedChild02 = aggregatedChild02 as NonNullable< typeof aggregatedChild02 >;
+    {
+      const path = tag002;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
 
-    expect( typedAggregatedChild02.fullTags ).toEqual( [ tag02, tag020, tag021, tag022 ].sort() );
-    expect( typedAggregatedChild02.tags ).toBe( treeChild02.tags );
+      const typed = node as NonNullable< typeof node >;
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag00,
+          path,
+          tag0020,
+        ].slice().sort(),
+      );
+    }
+
+    {
+      const path = tag0020;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
+
+      const typed = node as NonNullable< typeof node >;
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag00,
+          tag002,
+          path,
+        ].slice().sort(),
+      );
+    }
+
+    {
+      const path = tag01;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
+
+      const typed = node as NonNullable< typeof node >;
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          path,
+        ].slice().sort(),
+      );
+    }
+
+    {
+      const path = tag02;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
+
+      const typed = node as NonNullable< typeof node >;
+
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          path,
+          tag020,
+          tag0200,
+          tag02000,
+          tag0201,
+          tag021,
+          tag022,
+        ].slice().sort(),
+      );
+    }
+
+    {
+      const path = tag020;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
+
+      const typed = node as NonNullable< typeof node >;
+
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag02,
+          path,
+          tag0200,
+          tag02000,
+          tag0201,
+        ].slice().sort(),
+      );
+    }
+
+    {
+      const path = tag0200;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
+
+      const typed = node as NonNullable< typeof node >;
+
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag02,
+          tag020,
+          path,
+          tag02000,
+        ].slice().sort(),
+      );
+    }
+
+    {
+      const path = tag02000;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
+
+      const typed = node as NonNullable< typeof node >;
+
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag02,
+          tag020,
+          tag0200,
+          path,
+        ].slice().sort(),
+      );
+    }
+
+    {
+      const path = tag0201;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
+
+      const typed = node as NonNullable< typeof node >;
+
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag02,
+          tag020,
+          path,
+        ].slice().sort(),
+      );
+    }
+
+    {
+      const path = tag021;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
+
+      const typed = node as NonNullable< typeof node >;
+
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag02,
+          path,
+        ].slice().sort(),
+      );
+    }
+
+    {
+      const path = tag022;
+      const node = getJestTagsTreeNodeByIndx( aggregated, path );
+      expect( node ).toBeTruthy();
+
+      const typed = node as NonNullable< typeof node >;
+
+      expect( typed.tags.slice().sort() ).toEqual( [ path ] );
+      expect( typed.fullTags.slice().sort() ).toStrictEqual(
+        [
+          tag0,
+          tag02,
+          path,
+        ].slice().sort(),
+      );
+    }
   } );
 } );

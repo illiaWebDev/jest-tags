@@ -1,4 +1,9 @@
-#!/usr/bin/env sh
+#!/usr/bin/sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run husky:prepush
+if [ -z "$(git status --porcelain)" ]; then
+  npm run husky:prepush
+else
+  echo "\n\n========= WARNING ============: Working directory is dirty. Exiting\n\n"
+  exit 1;
+fi

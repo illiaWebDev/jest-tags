@@ -1,8 +1,8 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { describe, test } from '@jest/globals';
+import { deriveJestTags, jestTagsEnvVarName, defaultJestTags } from './deriveJestTags';
+import { matchesJestTags } from './matchesJestTags';
 
-export const jestTagsEnvVarName = 'JEST_TEST_TAGS';
-export type JestTags = Record< string, 0 | 1 >;
 
 type DescribeParams = Parameters< typeof describe >;
 type DescribeReturnType = ReturnType< typeof describe >;
@@ -10,28 +10,11 @@ type DescribeReturnType = ReturnType< typeof describe >;
 type TestParams = Parameters< typeof test >;
 type TestReturnType = ReturnType< typeof test >;
 
-export const matchesJestTags = ( envTags: JestTags, tags: string[] ): boolean => {
-  const entries = Object.entries( envTags );
 
-  const decision = entries.reduce< 'skip' | 'dontSkip' >(
-    ( a, [ tagName, mode ] ) => {
-      if ( a === 'skip' ) return 'skip';
-
-      if ( mode === 0 ) {
-        // if we have this tagName in tags -> skip
-        return tags.some( it => it === tagName ) ? 'skip' : 'dontSkip';
-      }
-
-      // if we do not have this tagName in tags -> skip
-      return tags.some( it => it === tagName ) ? 'dontSkip' : 'skip';
-    },
-    'dontSkip',
-  );
-
-  return decision === 'dontSkip';
-};
 const noop = () => { /** */ };
-
+const noopBlockFn = () => {
+  test.skip( 'jest-test-tags: RbKiVxt2Vq - skip', noop );
+};
 // ===================================================================================
 
 export type InitJestTagsRtrn = {
@@ -46,34 +29,12 @@ export const defaultInitJestTagsRtrn: InitJestTagsRtrn = {
   testWithTags: ( _, name, f, timeout ) => test( name, f, timeout ),
 };
 
-/**
- * NOTE that when working with env, we expect JEST_TEST_TAGS\
- * to be represented as `tag1:0;tag2:1;tag3:0`. Tried\
- * with stringified object, but then for it to be successfuly\
- * parsed it has to be passed in shell as \
- * `JEST_TEST_TAGS='{"tag1":0}'` and this is just dumb, I\
- * don't want to write so many noisy characters (ticks, and \
- * brackets, and whatever).\
- * So `tag1:0;tag2:1;tag3:0` seems pretty short and reasonable
- */
+
 export const initJestTags = ( env: Record< string, string | undefined > ): InitJestTagsRtrn => {
   const { [ jestTagsEnvVarName ]: JEST_TEST_TAGS } = env;
-  if ( JEST_TEST_TAGS === undefined ) return defaultInitJestTagsRtrn;
 
-  const pairStrings = JEST_TEST_TAGS.split( ';' ).filter( Boolean );
-  const acc: JestTags = {};
-  const parsed = pairStrings.reduce(
-    ( a, it ) => {
-      const [ tag, mode ] = it.split( ':' );
-      if ( tag === undefined || ( mode !== '0' && mode !== '1' ) ) return a;
-
-      const nextAcc: typeof acc = { ...a, [ tag ]: mode === '1' ? 1 : 0 };
-
-      return nextAcc;
-    },
-    acc,
-  );
-  if ( parsed === acc ) return defaultInitJestTagsRtrn;
+  const parsed = deriveJestTags( JEST_TEST_TAGS );
+  if ( parsed === defaultJestTags ) return defaultInitJestTagsRtrn;
 
 
   return {
@@ -88,9 +49,14 @@ export const initJestTags = ( env: Record< string, string | undefined > ): InitJ
          * and see how that works out. Currently, for some really \
          * db intensive tests, running only test suite might take \
          * 10 seconds, but then skipping reset can take 30+ seconds,\
-         * which is really weird
+         * which is really weird.\
+         * **IMPORTANT**
+         * we can't just use noop fuunc as the jest complains that\
+         * describe block requires at least one test. Instead we will\
+         * use noopBlockFn, that contains one test, marked with \
+         * .skip, and TestFn in that test is noop.
          */
-        : describe.skip( name, noop )
+        : describe.skip( name, noopBlockFn )
     ),
     testWithTags: ( tags, name, fn, t ) => (
       matchesJestTags( parsed, tags ) ? test( name, fn, t ) : test.skip( name, fn, t )

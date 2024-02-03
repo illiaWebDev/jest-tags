@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-import-module-exports
 import { JEST_FNAME_FILTER_TAGS, defaultJestFNameFilterTags } from './constants';
 
 
@@ -24,3 +25,4 @@ export function filterJestFNames( paths: string[] ) {
 }
 
 export default filterJestFNames;
+module.exports = filterJestFNames;

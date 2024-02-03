@@ -1,7 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { describe, test } from '@jest/globals';
 
-
 export const jestTagsEnvVarName = 'JEST_TEST_TAGS';
 export type JestTags = Record< string, 0 | 1 >;
 
@@ -31,6 +30,7 @@ export const matchesJestTags = ( envTags: JestTags, tags: string[] ): boolean =>
 
   return decision === 'dontSkip';
 };
+const noop = () => { /** */ };
 
 // ===================================================================================
 
@@ -78,7 +78,19 @@ export const initJestTags = ( env: Record< string, string | undefined > ): InitJ
 
   return {
     describeWithTags: ( tags, name, fn ) => (
-      matchesJestTags( parsed, tags ) ? describe( name, fn ) : describe.skip( name, fn )
+      matchesJestTags( parsed, tags )
+        ? describe( name, fn )
+        /**
+         * it feels that even though we are explicitly skipping,\
+         * there is some processing happening of the contents of\
+         * BlockFn (second argument of describe). So instead let's\
+         * try and pass empty function that does nothing (noop) \
+         * and see how that works out. Currently, for some really \
+         * db intensive tests, running only test suite might take \
+         * 10 seconds, but then skipping reset can take 30+ seconds,\
+         * which is really weird
+         */
+        : describe.skip( name, noop )
     ),
     testWithTags: ( tags, name, fn, t ) => (
       matchesJestTags( parsed, tags ) ? test( name, fn, t ) : test.skip( name, fn, t )

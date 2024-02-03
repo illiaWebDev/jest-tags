@@ -13,7 +13,7 @@ type TestReturnType = ReturnType< typeof test >;
 
 const noop = () => { /** */ };
 const noopBlockFn = () => {
-  test.skip( 'jest-test-tags: RbKiVxt2Vq - skip', noop );
+  test.skip( '@illia-web-dev/jest-tags | RbKiVxt2Vq - skip', noop );
 };
 // ===================================================================================
 

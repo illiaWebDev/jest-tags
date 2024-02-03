@@ -3,39 +3,39 @@ import { deriveGetJestTags } from './main';
 import type { JestTagsTreeNode } from '../types';
 
 
-const smallTree: JestTagsTreeNode = {
-  tags: [ '0' ],
+const tag0 = '0';
+const tag00 = '0.0';
+const tag01 = '0.1';
+const tag010 = '0.1.0';
+const tag011 = '0.1.1';
+const tag0110 = '0.1.1.0';
+const tag012 = '0.1.2';
+const tag02 = '0.2';
+
+const tree: JestTagsTreeNode = {
+  tags: [ tag0 ],
   children: [
-    { tags: [ '00' ] },
-    { tags: [ '01' ] },
-    { tags: [ '02' ] },
-  ],
-};
-const mediumTree: JestTagsTreeNode = {
-  tags: [ '0' ],
-  children: [
-    { tags: [ '00' ] },
+    { tags: [ tag00 ] },
     {
-      tags: [ '01' ],
+      tags: [ tag01 ],
       children: [
-        { tags: [ '010' ] },
+        { tags: [ tag010 ] },
         {
-          tags: [ '011' ],
-          children: [ { tags: [ '0110' ] } ],
+          tags: [ tag011 ],
+          children: [ { tags: [ tag0110 ] } ],
         },
-        { tags: [ '012' ] },
+        { tags: [ tag012 ] },
       ],
     },
-    { tags: [ '02' ] },
+    { tags: [ tag02 ] },
   ],
 };
+const getJestTags = deriveGetJestTags( tree );
 
-describe.skip( 'deriveGetJestTags', () => {
+
+describe( 'deriveGetJestTags', () => {
   describe( 'incorrect index string', () => {
     test( 'returns empty array', () => {
-      const rootTags: JestTagsTreeNode[ 'tags' ] = [ 'a' ];
-      const tree: JestTagsTreeNode = { tags: rootTags };
-      const getJestTags = deriveGetJestTags( tree );
       const incorrectIndexStrings = [
         'a',
         '.1',
@@ -45,6 +45,7 @@ describe.skip( 'deriveGetJestTags', () => {
         'asdasdsd',
         '-___',
       ];
+
       incorrectIndexStrings.forEach( str => {
         const results = getJestTags( str );
         const resultShort = getJestTags( str, true );
@@ -56,36 +57,16 @@ describe.skip( 'deriveGetJestTags', () => {
   } );
 
   describe( 'correct, but non-exisitng index string', () => {
-    test( 'returns fallback value (small tree)', () => {
-      const getJestTags = deriveGetJestTags( smallTree );
-
+    test( 'returns fallback value', () => {
       const nonExistingIndexStrings = [
         '1',
         '2',
         '0.4',
         '0.2.1',
         '0.0.0',
-      ];
-      nonExistingIndexStrings.forEach( str => {
-        const results = getJestTags( str );
-        const resultShort = getJestTags( str, true );
-
-        expect( results ).toEqual( [] );
-        expect( resultShort ).toEqual( [] );
-      } );
-    } );
-
-    test( 'returns fallback value (medium tree)', () => {
-      const getJestTags = deriveGetJestTags( mediumTree );
-
-      const nonExistingIndexStrings = [
-        '1',
-        '2',
-        '0.4',
         '0.1.1.1',
-        '0.2.1',
-        '0.0.0',
       ];
+
       nonExistingIndexStrings.forEach( str => {
         const results = getJestTags( str );
         const resultShort = getJestTags( str, true );
@@ -97,39 +78,41 @@ describe.skip( 'deriveGetJestTags', () => {
   } );
 
   describe( 'correct, existing index string', () => {
-    test( 'returns correctly (medium tree)', () => {
-      const getJestTags = deriveGetJestTags( mediumTree );
-
+    test( 'returns correctly ', () => {
       {
-        const path = [ 0, 1, 1, 0 ] as const;
-        const indx = path.join( '.' );
-        const results = getJestTags( indx );
-        const resultShort = getJestTags( indx, true );
+        const indx = tag0110;
+        const path = indx.split( '.' );
 
-        const node01 = ( mediumTree.children || [] )[ path[ 1 ] ];
-        const node011 = ( ( node01 && node01.children ) || [] )[ path[ 2 ] ];
-        const node0110 = ( ( node011 && node011.children ) || [] )[ path[ 3 ] ];
+        const node01 = ( tree.children || [] )[ Number( path[ 1 ] ) || 0 ];
+        const node011 = ( ( node01 && node01.children ) || [] )[ Number( path[ 2 ] ) || 0 ];
+        const node0110 = ( ( node011 && node011.children ) || [] )[ Number( path[ 3 ] ) || 0 ];
 
-        expect( resultShort ).toBe( node0110 && node0110.tags );
-        expect( results ).toEqual( node0110 && node0110.tags );
+        expect( getJestTags( indx, true ) ).toBe( node0110 && node0110.tags );
+        expect( getJestTags( indx ).slice().sort() ).toEqual(
+          [
+            tag0,
+            tag01,
+            tag011,
+            tag0110,
+          ].slice().sort(),
+        );
       }
 
       {
-        const path = [ 0, 1 ] as const;
-        const indx = path.join( '.' );
-        const results = getJestTags( indx );
-        const resultShort = getJestTags( indx, true );
+        const indx = tag01;
+        const path = indx.split( '.' );
 
-        const node01 = ( mediumTree.children || [] )[ path[ 1 ] ];
+        const node01 = ( tree.children || [] )[ Number( path[ 1 ] ) || 0 ];
 
-        expect( resultShort ).toBe( node01 && node01.tags );
-        expect( results.slice().sort() ).toEqual(
+        expect( getJestTags( indx, true ) ).toBe( node01 && node01.tags );
+        expect( getJestTags( indx ).slice().sort() ).toEqual(
           [
-            '01',
-            '010',
-            '011',
-            '0110',
-            '012',
+            tag0,
+            tag01,
+            tag010,
+            tag011,
+            tag0110,
+            tag012,
           ].sort(),
         );
       }
